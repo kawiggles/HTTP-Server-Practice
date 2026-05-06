@@ -4,7 +4,6 @@ project(server)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(shared)
-add_subdirectory(server)
+add_subdirectory(src)
 
 add_executable(server main.c)
