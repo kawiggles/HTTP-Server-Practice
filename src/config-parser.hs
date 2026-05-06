@@ -28,15 +28,8 @@ data ServerConfig = ServerConfig
 foreign export ccall parseConfig :: CString -> Ptr ServerConfig -> IO ()
 parseConfig :: CString -> Ptr ServerConfig -> IO ()
 parseConfig pathCStr ptr = do
-    path <- peekCString pathCStr
+    configpath <- peekCString pathCStr
     toml <- readFile path
-    parseToml toml
-
-{-
-parseToml :: String -> ServerConfig
-parseToml toml =
-    let ls = lines toml
--}
 
 data TomlValue = 
     TomlBool Bool
