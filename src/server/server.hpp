@@ -16,7 +16,7 @@ struct ServerConfig {
 class Server {
     public:
         Server();
-        ~Server ();
+        ~Server () = default;
 
         std::unique_ptr<Socket> s_sock = nullptr;
 
