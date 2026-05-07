@@ -5,6 +5,7 @@ project(HTTP_Server)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src/server)
+add_subdirectory(src/http)
 
 add_executable(HTTP_Server main.cpp)
 

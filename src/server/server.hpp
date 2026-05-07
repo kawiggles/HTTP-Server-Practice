@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <climits>
+#include <memory>
 
 #include "socket.hpp"
 
@@ -17,10 +18,8 @@ class Server {
         Server();
         ~Server ();
 
-        Socket * s_sock = nullptr;
+        std::unique_ptr<Socket> s_sock = nullptr;
 
         void run();
-
-    private:
-        void handleClient();
+        void handleClient(int clientFd);
 };

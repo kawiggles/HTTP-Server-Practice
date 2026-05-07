@@ -33,11 +33,15 @@ Socket::Socket(int port) {
 }
 
 int Socket::sAccept() {
-    int clientFd = accept(fd, (struct sockaddr *)&address, &addrlen);
+    sockaddr_in clientAddr{};
+    socklen_t clientAddrLen = sizeof(clientAddr);
+    int clientFd = accept(fd, (struct sockaddr *)&clientAddr, &clientAddrLen);
 
     if (clientFd < 0) {
         logMsg("Socket sAccept() failed: %s", strerror(errno));
         return -1;
     }
+
+    logMsg("Accepted connection %d", clientFd);
     return clientFd;
 }

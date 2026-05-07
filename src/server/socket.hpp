@@ -4,6 +4,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#define PORT 53545
+#define BUFFER_SIZE 104857600
+
 class Socket {
     public:
         Socket(int port);

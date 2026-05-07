@@ -32,6 +32,16 @@ instance Alternative Parser where
     empty = Parser $ const Nothing
     (Parser f) <|> (Parser g) = Parser $ \input -> f input <|> g input
 
+instance Monad Parser where
+    a >>= Parser _a
+
+parseLine :: Parser (String, TomlValue)
+parseLine = do
+    key <- spanP isAlpha
+    _ <- charP ' ' *> charP '=' *> charP ' '
+    value <- tomlValue
+    return (key, value)
+
 -- universal parser, constructed from three typed parsers
 tomlValue :: Parser TomlValue
 tomlValue = tomlBool <|> tomlInt <|> tomlString
@@ -42,11 +52,15 @@ tomlBool = f <$> (stringP "true" <|> stringP "false")
           f "false" = TomlBool False
           f _ = undefined
 
-stringLiteral :: Parser String
-stringLiteral = spanP (/='"')
-
 tomlString :: Parser TomlValue
 tomlString = TomlString <$> (charP '"' *> stringLiteral <* charP '"')
+
+tomlInt :: Parser TomlValue
+tomlInt = f <$> notNull (spanP isDigit)
+    where f ds = TomlInt $ read ds
+
+stringLiteral :: Parser String
+stringLiteral = spanP (/='"')
 
 spanP :: (Char -> Bool) -> Parser String
 spanP f = Parser $ \input ->
@@ -60,9 +74,8 @@ notNull (Parser p) = Parser $ \input -> do
         then Nothing
         else Just (input', xs)
 
-tomlInt :: Parser TomlValue
-tomlInt = f <$> notNull (spanP isDigit)
-    where f ds = TomlInt $ read ds
+ws :: Parser String
+ws = spanP isSpace
 
 stringP :: String -> Parser String
 stringP = traverse charP
