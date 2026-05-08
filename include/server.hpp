@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <climits>
 #include <memory>
+#include <vector>
 
 #include "socket.hpp"
 

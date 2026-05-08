@@ -1,10 +1,8 @@
-#include "../logs.hpp"
+#include "logs.hpp"
 #include "socket.hpp"
 #include "server.hpp"
 
 #include <thread>
-#include <string>
-#include <vector>
 
 extern "C" {
     void parseConfig(const char * path, ServerConfig * config);
@@ -56,10 +54,11 @@ void Server::handleClient(int clientFd) {
         }
 
         logMsg("Header received, parsing...");
-        if (header[0].starts_with("GET") == 0 && header[0].ends_with("HTTP/1")) {
+        if (header[0].starts_with("GET") == 0 && header[0].ends_with("HTTP/1.1")) {
             logMsg("HTTP request is GET");
             int pathStart = header[0].find('/');
             std::string path = header[0].substr(pathStart, header[0].find(' ') - pathStart);
         }
     }
 }
+

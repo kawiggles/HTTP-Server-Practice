@@ -6,9 +6,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(src/server)
-add_subdirectory(src/http)
-
 add_executable(HTTP_Server main.cpp)
 
-target_link_libraries(HTTP_Server PRIVATE http server)
+target_sources(HTTP_Server
+    PRIVATE
+        src/http.cpp
+        src/socket.cpp
+        src/server.cpp
+
+    PUBLIC
+        FILE_SET headers
+        TYPE HEADERS
+        BASE_DIRS
+            include
+        FILES
+            include/logs.hpp
+            include/http.hpp
+            include/socket.hpp
+            include/server.hpp
+)
