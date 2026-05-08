@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdlib>
 #include <cstdio>
 #include <ctime>
 #include <cstdarg>
@@ -28,7 +27,7 @@ inline void initLogger() {
         return;
     }
     time_t Time = time(nullptr);
-    fprintf(LOG_FILE, "=== Session Log Starting At: %.24s ===\n", ctime(&Time));
+    fprintf(LOG_FILE, "=== Session Log Starting At: %.24s ===\n\t", ctime(&Time));
     fflush(LOG_FILE);
 }
 

@@ -1,8 +1,9 @@
 #include "logs.hpp"
-#include "socket.hpp"
 #include "server.hpp"
 #include "http.hpp"
 
+#include <cerrno>
+#include<cstring>
 #include <thread>
 
 extern "C" {
@@ -14,13 +15,45 @@ Server::Server() {
     // ServerConfig config;
     // parseConfig("config.toml", &config);
     
-    s_sock = std::make_unique<Socket>(PORT);
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        logMsg("Socket bind failed %s", strerror(errno));
+        exit(1);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    if (bind(fd, (struct sockaddr *)&address, addrlen) < 0) {
+        logMsg("Socket bind failed: %s", strerror(errno));
+        exit(1);
+    }
+
+    if (listen(fd, SOMAXCONN) < 0) {
+        logMsg("Socket listen failed: %s", strerror(errno));
+        exit(1);
+    }
+}
+
+int Server::Accept() {
+    sockaddr_in clientAddr{};
+    socklen_t clientAddrLen = sizeof(clientAddr);
+    int clientFd = accept(fd, (struct sockaddr *) &clientAddr, &clientAddrLen);
+
+    if (clientFd < 0) {
+        logMsg("Server Accept() failed: %s", strerror(errno));
+        return -1;
+    }
+
+    logMsg("Accepted connection %d", clientFd);
+    return clientFd;
 }
 
 void Server::run() {
     logMsg("Running Server Loop");
     while(true) {
-        int clientFd = s_sock->sAccept();
+        int clientFd = Accept();
 
         if (clientFd < 0) continue;
 

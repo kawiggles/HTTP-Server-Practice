@@ -12,7 +12,6 @@ target_sources(HTTP_Server
     PRIVATE
         src/request.cpp
         src/response.cpp
-        src/socket.cpp
         src/server.cpp
 
     PUBLIC
@@ -23,6 +22,5 @@ target_sources(HTTP_Server
         FILES
             include/logs.hpp
             include/http.hpp
-            include/socket.hpp
             include/server.hpp
 )

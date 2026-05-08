@@ -6,7 +6,8 @@
 #include <climits>
 #include <memory>
 
-#include "socket.hpp"
+#define PORT 53545
+#define BUFFER_SIZE 104857600
 
 struct ServerConfig {
     int port;
@@ -16,10 +17,15 @@ struct ServerConfig {
 class Server {
     public:
         Server();
-        ~Server () = default;
-
-        std::unique_ptr<Socket> s_sock = nullptr;
+        ~Server () { if (fd >= 0) close(fd); }
 
         void run();
         void handleClient(int clientFd);
+
+    private:
+        int fd;
+        sockaddr_in address;
+        socklen_t addrlen = sizeof(address);
+
+        int Accept();
 };
