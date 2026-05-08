@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 enum class ReqType {
     GET,
@@ -19,9 +20,31 @@ enum class ReqType {
 ReqType getReqType(const std::string &type);
 
 struct Request {
+    virtual ~Request() = default;
+
     ReqType type;
     std::string path;
     float version;
+
+    std::string getPath(std::string line);
 };
+
+struct GetRequest : Request {};
+
+struct HeadRequest : Request {};
+
+struct PostRequest : Request {};
+
+struct PutRequest : Request {};
+
+struct DeleteRequest : Request {};
+
+struct ConnectRequest : Request {};
+
+struct OptionsRequest : Request {};
+
+struct TraceRequest : Request {};
+
+struct PatchRequest : Request {};
     
-Request parseHeader(std::vector<std::string> &header);
+std::unique_ptr<Request> parseHeader(std::vector<std::string> &header);

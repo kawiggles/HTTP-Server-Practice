@@ -18,31 +18,15 @@ ReqType getReqType(const std::string &type) {
     else                                    return ReqType::INVALID;
 }
 
-Request parseHeader(std::vector<std::string> &header) {
+std::unique_ptr<Request> parseHeader(std::vector<std::string> &lines) {
     logMsg("Parsing header with parseHeader()");
-    Request request;
 
-    if (header[header.size() - 1].ends_with("9"))
-        request.version = 0.9;
-    else if (header[header.size() - 1].ends_with("0"))
-        request.version = 1.1;
-    else if (header[header.size() - 1].ends_with("1"))
-        request.version = 1.1;
-    else if (header[header.size() - 1].ends_with("2"))
-        request.version = 2;
-    else if (header[header.size() - 1].ends_with("3"))
-        request.version = 3;
-    else
-        logMsg("Error: request version not recognized");
-
-    request.type = getReqType(header[0]);
-
-    switch (request.type){
+    switch (getReqType(lines[0])){
         case ReqType::GET: {
             logMsg("Request type is GET, parsing request path...");
             std::regex pathPattern("/([^ ]*)");
             std::smatch paths;
-            std::regex_search(header[0], paths, pathPattern);
+            std::regex_search(lines[0], paths, pathPattern);
             request.path = paths[0];
             break;
         }
@@ -74,6 +58,19 @@ Request parseHeader(std::vector<std::string> &header) {
             logMsg("Request type unrecognized");
             break;
     }
+
+    if (header[0].ends_with("9"))
+        request.version = 0.9;
+    else if (header[0].ends_with("0"))
+        request.version = 1.1;
+    else if (header[0].ends_with("1"))
+        request.version = 1.1;
+    else if (header[0].ends_with("2"))
+        request.version = 2;
+    else if (header[0].ends_with("3"))
+        request.version = 3;
+    else
+        logMsg("Error: request version not recognized");
 
     return request;
 }
