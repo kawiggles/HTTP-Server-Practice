@@ -1,6 +1,7 @@
 #include "logs.hpp"
 #include "socket.hpp"
 #include "server.hpp"
+#include "http.hpp"
 
 #include <thread>
 
@@ -35,9 +36,11 @@ void Server::handleClient(int clientFd) {
     auto getLine = [](std::string &buffer) {
         int endline = buffer.find('\n');
         std::string line = "";
-        if (buffer[endline-1] == '\r')
-            line = buffer.substr(0, endline);
-        buffer = buffer.substr(endline + 1);
+        if (endline != std::string::npos) {
+            int end = (endline > 0 && buffer[endline - 1] == '\r') ? endline - 1 : endline;
+            line = buffer.substr(0, end);
+            buffer = buffer.substr(endline + 1);
+        }
         return line;
     };
 
@@ -46,6 +49,9 @@ void Server::handleClient(int clientFd) {
     ssize_t bytes = recv(clientFd, buffer.data(), BUFFER_SIZE, 0);
 
     if (bytes > 0) {
+        logMsg("Header received, parsing...");
+        std::unique_ptr<Request> request = parseRequestLine(getLine(buffer));
+
         std::vector<std::string> header;
         std::string line = getLine(buffer);
         while (line != "") {
@@ -53,12 +59,15 @@ void Server::handleClient(int clientFd) {
             line = getLine(buffer);
         }
 
-        logMsg("Header received, parsing...");
-        if (header[0].starts_with("GET") == 0 && header[0].ends_with("HTTP/1.1")) {
-            logMsg("HTTP request is GET");
-            int pathStart = header[0].find('/');
-            std::string path = header[0].substr(pathStart, header[0].find(' ') - pathStart);
-        }
+        request->parseHeader(header);
+
+        std::vector<std::string> body;
+        do {
+            line = getLine(buffer);
+            body.push_back(line);
+        } while (line != "");
+
+        request->buildResponse(body);
     }
 }
 

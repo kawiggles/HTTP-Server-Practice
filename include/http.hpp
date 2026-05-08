@@ -20,31 +20,79 @@ enum class ReqType {
 ReqType getReqType(const std::string &type);
 
 struct Request {
-    virtual ~Request() = default;
+    Request(ReqType t, std::string p, float v) : type(t), path(p), version(v) {};
+    virtual ~Request();
 
     ReqType type;
     std::string path;
     float version;
 
-    std::string getPath(std::string line);
+    std::string getPath(const std::string &line);
+    virtual void parseHeader(const std::vector<std::string> &lines) = 0;
+    virtual std::string buildResponse(std::vector<std::string> body) = 0;
 };
 
-struct GetRequest : Request {};
+struct GetRequest : Request {
+    GetRequest(std::string p, float v) : Request(ReqType::GET, p, v) {}
+    ~GetRequest() override = default;
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct HeadRequest : Request {};
+struct HeadRequest : Request {
+    HeadRequest(std::string p, float v) : Request(ReqType::HEAD, p, v) {}
+    ~HeadRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct PostRequest : Request {};
+struct PostRequest : Request {
+    PostRequest(std::string p, float v) : Request(ReqType::POST, p, v) {}
+    ~PostRequest() override = default;
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct PutRequest : Request {};
+struct PutRequest : Request {
+    PutRequest(std::string p, float v) : Request(ReqType::PUT, p, v) {}
+    ~PutRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct DeleteRequest : Request {};
+struct DeleteRequest : Request {
+    DeleteRequest(std::string p, float v) : Request(ReqType::DELETE, p, v) {} 
+    ~DeleteRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct ConnectRequest : Request {};
+struct ConnectRequest : Request {
+    ConnectRequest(std::string p, float v) : Request(ReqType::CONNECT, p, v) {}
+    ~ConnectRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct OptionsRequest : Request {};
+struct OptionsRequest : Request {
+    OptionsRequest(std::string p, float v) : Request(ReqType::OPTIONS, p, v) {}
+    ~OptionsRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct TraceRequest : Request {};
+struct TraceRequest : Request {
+    TraceRequest(std::string p, float v) : Request(ReqType::TRACE, p, v) {}
+    ~TraceRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
 
-struct PatchRequest : Request {};
+struct PatchRequest : Request {
+    PatchRequest(std::string p, float v) : Request(ReqType::PATCH, p, v) {} 
+    ~PatchRequest() override = default; 
+    void parseHeader(const std::vector<std::string> &lines) override;
+    std::string buildResponse(std::vector<std::string> body) override;
+};
     
-std::unique_ptr<Request> parseHeader(std::vector<std::string> &header);
+std::unique_ptr<Request> parseRequestLine(const std::string &line);

@@ -10,7 +10,8 @@ add_executable(HTTP_Server main.cpp)
 
 target_sources(HTTP_Server
     PRIVATE
-        src/http.cpp
+        src/request.cpp
+        src/response.cpp
         src/socket.cpp
         src/server.cpp
 
