@@ -108,15 +108,28 @@ void Request::parseHeader(const std::vector<std::string> &lines) {
 }
 
 Header getHeaderType(const std::string &header) {
+    // Request Headers
     if (header == "Authorization")          return Header::AUTHORIZATION;
     else if (header == "From")              return Header::FROM;
     else if (header == "If-Modified-Since") return Header::IF_MODIFIED_SINCE;
     else if (header == "Referer")           return Header::REFERER;
     else if (header == "User-Agent")        return Header::USERAGENT;
+    else if (header == "Host")              return Header::HOST;
+    else if (header == "Accept")            return Header::ACCEPT;
+    // Response Headers
+    else if (header == "Allow")             return Header::ALLOW;
+    else if (header == "Location")          return Header::LOCATION;
+    else if (header == "Server")            return Header::SERVER;
+    else if (header == "Expires")           return Header::EXPIRES;
+    else if (header == "WWW-Authenticate")  return Header::WWW_AUTHENTICATE;
+    else if (header == "Last-Modified")     return Header::LAST_MODIFIED;
+    // Common Headers
     else if (header == "Date")              return Header::DATE;
     else if (header == "Pragma")            return Header::PRAGMA;
     else if (header == "Content-Type")      return Header::CONTENT_TYPE;
     else if (header == "Content-Length")    return Header::CONTENT_LENGTH;
     else if (header == "Content-Encoding")  return Header::CONTENT_ENCODING;
+    else if (header == "Connection")        return Header::CONNECTION;
+    // Unknown
     else                                    return Header::UNKNOWN;
 }

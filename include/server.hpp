@@ -19,14 +19,15 @@ class Server {
         Server();
         ~Server () { if (fd >= 0) close(fd); }
 
+        std::string root;
+        std::string home = "/index.html";
+
         void run();
 
     private:
         int fd;
         sockaddr_in address;
         socklen_t addrlen = sizeof(address);
-
-        std::string root;
 
         void handleClient(int clientFd);
         int Accept();

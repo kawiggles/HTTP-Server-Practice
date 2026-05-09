@@ -23,19 +23,24 @@ Server::Server() {
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
+    // TODO: Create server port attribute and alter it via config
     address.sin_port = htons(PORT);
 
     if (bind(fd, (struct sockaddr *)&address, addrlen) < 0) {
         logMsg("Socket bind failed: %s", strerror(errno));
         exit(1);
     }
+    logMsg("Server started on port %d", PORT);
 
     if (listen(fd, SOMAXCONN) < 0) {
         logMsg("Socket listen failed: %s", strerror(errno));
         exit(1);
     }
 
+    // TODO: Another config thing, be able to set root directory
     root = "/home/kawiggles/HTTP Server/test";
+    logMsg("Root directory is %s", root.c_str());
+    logMsg("");
 }
 
 int Server::Accept() {
@@ -103,16 +108,24 @@ void Server::handleClient(int clientFd) {
             line = getLine(buffer);
         }
 
-        std::string response = request->buildResponse(root, body);
+        Response response = request->buildResponse(*this, body);
 
-        logMsg("Sending response:\n%s", response.c_str());
-        ssize_t sent = send(clientFd, response.c_str(), response.size(), 0);
+        logMsg("Sending response:\n%s", response.content.c_str());
+        ssize_t sent = send(clientFd, response.content.c_str(), response.content.size(), 0);
         logMsg("send() returned %zd, errno: %s", sent, strerror(errno));
-        
-        if (request->version == Version::HTTP_09) {
+
+        auto closeClient = [&]() {
             logMsg("Closing connection %d", clientFd);
             close(clientFd);
+        };
+        
+        if (request->version == Version::HTTP_09) {
+            closeClient();
+        } else if (request->version == Version::HTTP_11) {
+            if (response.headers.at(Header::CONNECTION) == "close") 
+                closeClient();
         }
+        logMsg("");
     }
 }
 

@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <memory>
 
+class Server;
+
 enum class Version {
     HTTP_09,
     HTTP_10,
@@ -51,11 +53,19 @@ enum class Header {
     CONTENT_TYPE,
     CONTENT_LENGTH,
     CONTENT_ENCODING,
+    CONNECTION,
     // Unknown
     UNKNOWN
 };
 
 Header getHeaderType(const std::string &header);
+
+struct Response {
+    std::string content;
+    std::unordered_map<Header, std::string> headers;
+    Version version;
+    int status;
+};
 
 class Request {
     public:
@@ -68,7 +78,7 @@ class Request {
         std::unordered_map<Header, std::string> headers;
 
         void parseHeader(const std::vector<std::string> &lines);
-        virtual std::string buildResponse(const std::string &root, const std::vector<std::string> &body) = 0;
+        virtual Response buildResponse(const Server &server, const std::vector<std::string> &body) = 0;
 
     private:
         std::string getPath(const std::string &line);
@@ -79,7 +89,7 @@ class GetRequest : public Request {
         GetRequest(std::string p, Version v) : Request(ReqType::GET, p, v) {}
         ~GetRequest() override = default;
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
         std::string readFile(const std::string &path);
@@ -90,7 +100,7 @@ class HeadRequest : public Request {
         HeadRequest(std::string p, Version v) : Request(ReqType::HEAD, p, v) {}
         ~HeadRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -100,7 +110,7 @@ class PostRequest : public Request {
         PostRequest(std::string p, Version v) : Request(ReqType::POST, p, v) {}
         ~PostRequest() override = default;
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -110,7 +120,7 @@ class PutRequest : public Request {
         PutRequest(std::string p, Version v) : Request(ReqType::PUT, p, v) {}
         ~PutRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -120,7 +130,7 @@ class DeleteRequest : public Request {
         DeleteRequest(std::string p, Version v) : Request(ReqType::DELETE, p, v) {} 
         ~DeleteRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -130,7 +140,7 @@ class ConnectRequest : public Request {
         ConnectRequest(std::string p, Version v) : Request(ReqType::CONNECT, p, v) {}
         ~ConnectRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -140,7 +150,7 @@ class OptionsRequest : public Request {
         OptionsRequest(std::string p, Version v) : Request(ReqType::OPTIONS, p, v) {}
         ~OptionsRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -150,7 +160,7 @@ class TraceRequest : public Request {
         TraceRequest(std::string p, Version v) : Request(ReqType::TRACE, p, v) {}
         ~TraceRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
@@ -160,7 +170,7 @@ class PatchRequest : public Request {
         PatchRequest(std::string p, Version v) : Request(ReqType::PATCH, p, v) {} 
         ~PatchRequest() override = default; 
 
-        std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
+        Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
 
     private:
 };
