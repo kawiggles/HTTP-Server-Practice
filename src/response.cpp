@@ -7,27 +7,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-std::string GetRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
-    logMsg("Building response for GET request");
-    std::string absPath = "";
-    absPath.append(root);
-    absPath.append(path);
-
-    switch (version) {
-        case Version::HTTP_09:
-            return readFile(absPath);
-        case Version::HTTP_10:
-        case Version::HTTP_11:
-        case Version::HTTP_20:
-        case Version::HTTP_30:
-        case Version::INVALID:
-            break;
-    }
-
-    std::string error = "error";
-    return error;
-}
-
 std::string GetRequest::readFile(const std::string &path) {
     logMsg("Opening file at path %s", path.c_str());
     int file = open(path.c_str(), O_RDONLY);
@@ -52,34 +31,166 @@ std::string GetRequest::readFile(const std::string &path) {
     return content;
 }
 
+std::string GetRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
+    logMsg("Building response for GET request");
+    std::string absPath = "";
+    absPath.append(root);
+    absPath.append(path);
+
+    switch (version) {
+        case Version::HTTP_09:
+            return readFile(absPath);
+        case Version::HTTP_10: {
+
+        }
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
+}
+
 std::string HeadRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for HEAD request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string PostRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for POST request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string PutRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for PUT request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string DeleteRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for DELETE request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string ConnectRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for CONNECT request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string OptionsRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for OPTIONS request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string TraceRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for TRACE request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }
 
 std::string PatchRequest::buildResponse(const std::string &root, const std::vector<std::string> &body) {
     logMsg("Building response for PATCH request");
+
+    switch (version) {
+        case Version::HTTP_09:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_10:
+            return "error, request type not supported for this request version";
+        case Version::HTTP_11:
+        case Version::HTTP_20:
+        case Version::HTTP_30:
+        case Version::INVALID:
+            break;
+    }
+
+    return "error";
 }

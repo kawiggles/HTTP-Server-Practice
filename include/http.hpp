@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <memory>
 
 enum class Version {
@@ -28,6 +29,34 @@ enum class ReqType {
 
 ReqType getReqType(const std::string &type);
 
+enum class Header {
+    // Request Headers
+    AUTHORIZATION,
+    FROM,
+    IF_MODIFIED_SINCE,
+    REFERER,
+    USERAGENT,
+    HOST,
+    ACCEPT,
+    // Response Headers
+    ALLOW,
+    LOCATION,
+    SERVER,
+    EXPIRES,
+    WWW_AUTHENTICATE,
+    LAST_MODIFIED,
+    // Common Headers
+    DATE,
+    PRAGMA,
+    CONTENT_TYPE,
+    CONTENT_LENGTH,
+    CONTENT_ENCODING,
+    // Unknown
+    UNKNOWN
+};
+
+Header getHeaderType(const std::string &header);
+
 class Request {
     public:
         Request(ReqType t, std::string p, Version v) : type(t), path(p), version(v) {};
@@ -36,8 +65,9 @@ class Request {
         ReqType type;
         std::string path;
         Version version;
+        std::unordered_map<Header, std::string> headers;
 
-        virtual void parseHeader(const std::vector<std::string> &lines) = 0;
+        void parseHeader(const std::vector<std::string> &lines);
         virtual std::string buildResponse(const std::string &root, const std::vector<std::string> &body) = 0;
 
     private:
@@ -49,7 +79,6 @@ class GetRequest : public Request {
         GetRequest(std::string p, Version v) : Request(ReqType::GET, p, v) {}
         ~GetRequest() override = default;
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -61,7 +90,6 @@ class HeadRequest : public Request {
         HeadRequest(std::string p, Version v) : Request(ReqType::HEAD, p, v) {}
         ~HeadRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -72,7 +100,6 @@ class PostRequest : public Request {
         PostRequest(std::string p, Version v) : Request(ReqType::POST, p, v) {}
         ~PostRequest() override = default;
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -83,7 +110,6 @@ class PutRequest : public Request {
         PutRequest(std::string p, Version v) : Request(ReqType::PUT, p, v) {}
         ~PutRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -94,7 +120,6 @@ class DeleteRequest : public Request {
         DeleteRequest(std::string p, Version v) : Request(ReqType::DELETE, p, v) {} 
         ~DeleteRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -105,7 +130,6 @@ class ConnectRequest : public Request {
         ConnectRequest(std::string p, Version v) : Request(ReqType::CONNECT, p, v) {}
         ~ConnectRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -116,7 +140,6 @@ class OptionsRequest : public Request {
         OptionsRequest(std::string p, Version v) : Request(ReqType::OPTIONS, p, v) {}
         ~OptionsRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -127,7 +150,6 @@ class TraceRequest : public Request {
         TraceRequest(std::string p, Version v) : Request(ReqType::TRACE, p, v) {}
         ~TraceRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:
@@ -138,7 +160,6 @@ class PatchRequest : public Request {
         PatchRequest(std::string p, Version v) : Request(ReqType::PATCH, p, v) {} 
         ~PatchRequest() override = default; 
 
-        void parseHeader(const std::vector<std::string> &lines) override;
         std::string buildResponse(const std::string &root, const std::vector<std::string> &body) override;
 
     private:

@@ -29,7 +29,8 @@ std::string getPath(const std::string &line) {
 Request::~Request() = default;
 
 std::unique_ptr<Request> parseRequestLine(const std::string &line) {
-    logMsg("Parsing header with parseHeader()");
+    logMsg("Parsing request line with parseRequestLine()");
+    logMsg("Request line is: %s", line.c_str());
 
     Version version;
     if (line.find("HTTP/") == std::string::npos) {
@@ -58,51 +59,33 @@ std::unique_ptr<Request> parseRequestLine(const std::string &line) {
 
     if (version != Version::INVALID) {
         switch (getReqType(line)){
-            case ReqType::GET: {
-                logMsg("Request type is GET, parsing request path...");
+            case ReqType::GET:
+                logMsg("Request type is GET");
                 return std::make_unique<GetRequest>(path, version);
-                break;
-            }
-            case ReqType::HEAD: {
-                logMsg("Request type is GET, parsing request path...");
+            case ReqType::HEAD:
+                logMsg("Request type is HEAD");
                 return std::make_unique<HeadRequest>(path, version);
-                break;
-            }
-            case ReqType::POST: {
-                logMsg("Request type is POST, parsing request path...");
+            case ReqType::POST:
+                logMsg("Request type is POST");
                 return std::make_unique<PostRequest>(path, version);
-                break;
-            }
-            case ReqType::PUT: {
-                logMsg("Request type is PUT, parsing request path...");
+            case ReqType::PUT:
+                logMsg("Request type is PUT");
                 return std::make_unique<PutRequest>(path, version);
-                break;
-            }
-            case ReqType::DELETE: {
-                logMsg("Request type is DELETE, parsing request path...");
+            case ReqType::DELETE:
+                logMsg("Request type is DELETE");
                 return std::make_unique<DeleteRequest>(path, version);
-                break;
-            }
-            case ReqType::CONNECT: {
-                logMsg("Request type is CONNECT, parsing request path...");
+            case ReqType::CONNECT:
+                logMsg("Request type is CONNECT");
                 return std::make_unique<ConnectRequest>(path, version);
-                break;
-            }
-            case ReqType::OPTIONS: {
-                logMsg("Request type is OPTIONS, parsing request path...");
+            case ReqType::OPTIONS:
+                logMsg("Request type is OPTIONS");
                 return std::make_unique<OptionsRequest>(path, version);
-                break;
-            }
-            case ReqType::TRACE: {
-                logMsg("Request type is TRACE, parsing request path...");
+            case ReqType::TRACE:
+                logMsg("Request type is TRACE");
                 return std::make_unique<TraceRequest>(path, version);
-                break;
-            }
-            case ReqType::PATCH: {
-                logMsg("Request type is PATCH, parsing request path...");
+            case ReqType::PATCH:
+                logMsg("Request type is PATCH");
                 return std::make_unique<PatchRequest>(path, version);
-                break;
-            }
             case ReqType::INVALID:
                 logMsg("Request type unrecognized");
                 break;
@@ -112,44 +95,28 @@ std::unique_ptr<Request> parseRequestLine(const std::string &line) {
     return nullptr;
 }
 
-void GetRequest::parseHeader(const std::vector<std::string> &lines) {
-    switch (version) {
-        case Version::HTTP_09:
-            logMsg("No lines to parse: version in 0.9");
-        case Version::HTTP_10:
-            break;
-        case Version::HTTP_11:
-            break;
-        case Version::HTTP_20:
-            break;
-        case Version::HTTP_30:
-            break;
-        case Version::INVALID:
-            logMsg("Invalid version, cannot parse header");
-            break;
+void Request::parseHeader(const std::vector<std::string> &lines) {
+    logMsg("Parsing remaining header with parseHeader()");
+    logMsg("\nHeader content is:");
+    for (const std::string &line : lines) {
+        char colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        Header key = getHeaderType(line.substr(0, colon));
+        headers[key] = line.substr(colon + 2);
+        logMsg("\t%s \t...%s", line.c_str(), (key == Header::UNKNOWN) ? "not recognized" : "parsed");
     }
 }
 
-void HeadRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void PostRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void PutRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void DeleteRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void ConnectRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void OptionsRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void TraceRequest::parseHeader(const std::vector<std::string> &lines) {
-}
-
-void PatchRequest::parseHeader(const std::vector<std::string> &lines) {
+Header getHeaderType(const std::string &header) {
+    if (header == "Authorization")          return Header::AUTHORIZATION;
+    else if (header == "From")              return Header::FROM;
+    else if (header == "If-Modified-Since") return Header::IF_MODIFIED_SINCE;
+    else if (header == "Referer")           return Header::REFERER;
+    else if (header == "User-Agent")        return Header::USERAGENT;
+    else if (header == "Date")              return Header::DATE;
+    else if (header == "Pragma")            return Header::PRAGMA;
+    else if (header == "Content-Type")      return Header::CONTENT_TYPE;
+    else if (header == "Content-Length")    return Header::CONTENT_LENGTH;
+    else if (header == "Content-Encoding")  return Header::CONTENT_ENCODING;
+    else                                    return Header::UNKNOWN;
 }
