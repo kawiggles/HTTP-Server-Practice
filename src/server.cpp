@@ -3,7 +3,7 @@
 #include "http.hpp"
 
 #include <cerrno>
-#include<cstring>
+#include <cstring>
 #include <thread>
 
 extern "C" {
@@ -34,6 +34,8 @@ Server::Server() {
         logMsg("Socket listen failed: %s", strerror(errno));
         exit(1);
     }
+
+    root = "/home/kawiggles/HTTP Server/test";
 }
 
 int Server::Accept() {
@@ -95,12 +97,22 @@ void Server::handleClient(int clientFd) {
         request->parseHeader(header);
 
         std::vector<std::string> body;
-        do {
-            line = getLine(buffer);
+        line = getLine(buffer);
+        while (line != "") {
             body.push_back(line);
-        } while (line != "");
+            line = getLine(buffer);
+        }
 
-        request->buildResponse(body);
+        std::string response = request->buildResponse(root, body);
+
+        logMsg("Sending response:\n%s", response.c_str());
+        ssize_t sent = send(clientFd, response.c_str(), response.size(), 0);
+        logMsg("send() returned %zd, errno: %s", sent, strerror(errno));
+        
+        if (request->version == Version::HTTP_09) {
+            logMsg("Closing connection %d", clientFd);
+            close(clientFd);
+        }
     }
 }
 

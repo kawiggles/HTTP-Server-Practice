@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <climits>
-#include <memory>
+#include <string>
 
 #define PORT 53545
 #define BUFFER_SIZE 104857600
@@ -20,12 +20,14 @@ class Server {
         ~Server () { if (fd >= 0) close(fd); }
 
         void run();
-        void handleClient(int clientFd);
 
     private:
         int fd;
         sockaddr_in address;
         socklen_t addrlen = sizeof(address);
 
+        std::string root;
+
+        void handleClient(int clientFd);
         int Accept();
 };

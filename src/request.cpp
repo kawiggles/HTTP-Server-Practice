@@ -31,32 +31,32 @@ Request::~Request() = default;
 std::unique_ptr<Request> parseRequestLine(const std::string &line) {
     logMsg("Parsing header with parseHeader()");
 
-    float version;
+    Version version;
     if (line.find("HTTP/") == std::string::npos) {
         if (line.starts_with("GET")) {
             logMsg("Request version is 0.9");
-            version = 0.9;
+            version = Version::HTTP_09;
         } else {
             logMsg("Error: request version not recognized");
-            version = 0;
+            version = Version::INVALID;
         }
     } else if (line.ends_with("0")) {
         logMsg("Request version is 1.0");
-        version = 1.1;
+        version = Version::HTTP_10;
     } else if (line.ends_with("1")) {
         logMsg("Request version is 1.1");
-        version = 1.1;
+        version = Version::HTTP_11;
     } else if (line.ends_with("2")) {
         logMsg("Request version is 2");
-        version = 2;
+        version = Version::HTTP_20;
     } else if (line.ends_with("3")) {
         logMsg("Request version is 3");
-        version = 3;
+        version = Version::HTTP_30;
     }
 
     std::string path = getPath(line);
 
-    if (version != 0) {
+    if (version != Version::INVALID) {
         switch (getReqType(line)){
             case ReqType::GET: {
                 logMsg("Request type is GET, parsing request path...");
@@ -113,6 +113,21 @@ std::unique_ptr<Request> parseRequestLine(const std::string &line) {
 }
 
 void GetRequest::parseHeader(const std::vector<std::string> &lines) {
+    switch (version) {
+        case Version::HTTP_09:
+            logMsg("No lines to parse: version in 0.9");
+        case Version::HTTP_10:
+            break;
+        case Version::HTTP_11:
+            break;
+        case Version::HTTP_20:
+            break;
+        case Version::HTTP_30:
+            break;
+        case Version::INVALID:
+            logMsg("Invalid version, cannot parse header");
+            break;
+    }
 }
 
 void HeadRequest::parseHeader(const std::vector<std::string> &lines) {
