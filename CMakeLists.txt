@@ -10,6 +10,7 @@ add_executable(HTTP_Server main.cpp)
 
 target_sources(HTTP_Server
     PRIVATE
+        src/compose.cpp
         src/request.cpp
         src/response.cpp
         src/server.cpp

@@ -109,9 +109,10 @@ void Server::handleClient(int clientFd) {
         }
 
         Response response = request->buildResponse(*this, body);
+        std::string content = response.generateResponseString();
 
-        logMsg("Sending response:\n%s", response.content.c_str());
-        ssize_t sent = send(clientFd, response.content.c_str(), response.content.size(), 0);
+        logMsg("Sending response:\n%s", content.c_str());
+        ssize_t sent = send(clientFd, content.c_str(), content.size(), 0);
         logMsg("send() returned %zd, errno: %s", sent, strerror(errno));
 
         auto closeClient = [&]() {

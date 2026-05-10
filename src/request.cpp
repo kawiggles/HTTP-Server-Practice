@@ -18,19 +18,10 @@ ReqType getReqType(const std::string &type) {
     else                                    return ReqType::INVALID;
 }
 
-std::string getPath(const std::string &line) {
-    logMsg("Parsing request path in request line...");
-    std::regex pathPattern("/([^ ]*)");
-    std::smatch paths;
-    std::regex_search(line, paths, pathPattern);
-    return paths[0];
-}
-
 Request::~Request() = default;
 
 std::unique_ptr<Request> parseRequestLine(const std::string &line) {
     logMsg("Parsing request line with parseRequestLine()");
-    logMsg("Request line is: %s", line.c_str());
 
     Version version;
     if (line.find("HTTP/") == std::string::npos) {
@@ -55,7 +46,11 @@ std::unique_ptr<Request> parseRequestLine(const std::string &line) {
         version = Version::HTTP_30;
     }
 
-    std::string path = getPath(line);
+    std::regex pathPattern("/([^ ]*)");
+    std::smatch paths;
+    std::regex_search(line, paths, pathPattern);
+    std::string path = paths[0];
+    logMsg("Request path is %s", path.c_str());
 
     if (version != Version::INVALID) {
         switch (getReqType(line)){

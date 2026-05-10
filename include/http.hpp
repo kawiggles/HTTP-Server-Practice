@@ -61,10 +61,13 @@ enum class Header {
 Header getHeaderType(const std::string &header);
 
 struct Response {
-    std::string content;
+    std::string filecontent;
     std::unordered_map<Header, std::string> headers;
     Version version;
-    int status;
+    std::string status;
+
+    std::string generateResponseString();
+    std::string generateHeaders();
 };
 
 class Request {
@@ -78,10 +81,11 @@ class Request {
         std::unordered_map<Header, std::string> headers;
 
         void parseHeader(const std::vector<std::string> &lines);
-        virtual Response buildResponse(const Server &server, const std::vector<std::string> &body) = 0;
+        std::string readFile(const std::string &path);
 
-    private:
-        std::string getPath(const std::string &line);
+        virtual Response buildResponse(const Server &server, const std::vector<std::string> &body) = 0;
+        virtual std::string handlePath(const Server &server);
+        virtual std::string getErrorCode() = 0;
 };
 
 class GetRequest : public Request {
@@ -90,9 +94,6 @@ class GetRequest : public Request {
         ~GetRequest() override = default;
 
         Response buildResponse(const Server &server, const std::vector<std::string> &body) override;
-
-    private:
-        std::string readFile(const std::string &path);
 };
 
 class HeadRequest : public Request {

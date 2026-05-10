@@ -8,6 +8,17 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+std::string Request::handlePath(const Server &server) {
+    std::string absPath = "";
+    absPath.append(server.root);
+    if (path == "/")
+        absPath.append(server.home);
+    else
+        absPath.append(path);
+
+    return absPath;
+}
+
 std::string GetRequest::readFile(const std::string &path) {
     logMsg("Opening file at path %s", path.c_str());
     int file = open(path.c_str(), O_RDONLY);
@@ -36,42 +47,8 @@ Response GetRequest::buildResponse(const Server &server, const std::vector<std::
     logMsg("Building response for GET request");
     Response response;
 
-    // TODO: System for parsing request paths
-    std::string absPath = "";
-    absPath.append(server.root);
-    if (path == "/")
-        absPath.append(server.home);
-    else
-        absPath.append(path);
-
-    switch (version) {
-        case Version::HTTP_09:
-            response.version = this->version;
-            response.content = readFile(absPath);
-            return response;
-        case Version::HTTP_10: {
-
-        }
-        case Version::HTTP_11: {
-            std::string body = readFile(absPath);
-            // TODO: System for generating response codes, not just assuming 200
-            // Hint for above, use version
-            response.content += "HTTP/1.1 200 OK\r\n";
-            // TODO: System for detecting and creating string for content type
-            response.content += "Content-Type: text/html\r\n";
-            response.content += "Content-Length: " + std::to_string(body.size()) + "\r\n";
-            // TODO: System for determining whether to close connection
-            response.content += "Connection: close\r\n";
-            response.content += "\r\n";
-            response.content.append(body);
-            response.headers[Header::CONNECTION] = "close";
-            return response;
-        }
-        case Version::HTTP_20:
-        case Version::HTTP_30:
-        case Version::INVALID:
-            break;
-    }
+    response.version = this->version;
+    response.filecontent = readFile(handlePath(server));
 
     return response;
 }
@@ -80,15 +57,8 @@ Response HeadRequest::buildResponse(const Server &server, const std::vector<std:
     logMsg("Building response for HEAD request");
     Response response;
 
-    switch (version) {
-        case Version::HTTP_09:
-        case Version::HTTP_10:
-        case Version::HTTP_11:
-        case Version::HTTP_20:
-        case Version::HTTP_30:
-        case Version::INVALID:
-            break;
-    }
+    response.version = this->version;
+    response.filecontent = "";
 
     return response;
 }
